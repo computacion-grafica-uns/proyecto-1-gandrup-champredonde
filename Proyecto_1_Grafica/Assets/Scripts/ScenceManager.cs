@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -10,9 +10,17 @@ public class SceneManager : MonoBehaviour
 
     private GameObject objetoCuadrado;
 
-    private GameObject miCamara;
-    
+    private GameObject CamaraOrb, CamaraPp;
+
+    private bool modoPp = false;
+
+    private float velRotMouseOrb, velRotTeclasOrb;
+
     private Vector3 camPos,camTarget,camUp;
+
+    private float ppRotX = 0f, ppRotY = 0f, velPp = 5f;
+
+    private Vector3 camPosPp, camForwardPp, camUpPp;
     
     private Color[] colores;
     // Start is called before the first frame update
@@ -29,89 +37,95 @@ public class SceneManager : MonoBehaviour
         CreateModel();
         UpdateMesh();
         CreateMaterial();
-
         CreateCamera();
         camPos = new Vector3(0,5,0);
         camTarget = new Vector3(0,0,0);
         camUp = new Vector3(0,0,1);
+        camPosPp = new Vector3(0,1,-3);
+        camForwardPp = new Vector3(0,0,1);
+        camUpPp = new Vector3(0,1,0);
+        velRotMouseOrb = 100f;
+        velRotTeclasOrb = 30f;
         RecalcularMatrices();
     }
 
     // Update is called once per frame
     void Update()
     {
-    }
-    private void CreateModel() 
-    {
-        
-        vertices = new Vector3[]
-        {
-            new Vector3(1,1,1),
-            new Vector3(-1,1,1),
-            new Vector3(1,1,-1),
-            new Vector3(-1,1,-1),
-            new Vector3(1,-1,1),
-            new Vector3(-1,-1,1),
-            new Vector3(1,-1,-1),
-            new Vector3(-1,-1,-1),
-        };
-
-        triangles = new int[]{
-            // Cara superior
-            0,1,2,
-            3,2,1,
-            // Cara inferior
-            4,6,5,
-            7,5,6,
-            // Cara frontal
-            0,2,4,
-            6,4,2,
-            // Cara trasera
-            1,5,3,
-            7,3,5,
-            // Cara izquierda
-            1,0,5,
-            4,5,0,
-            // Cara derecha
-            2,3,6,
-            7,6,3
-        };
-        colores = new Color[]{
-            new Color(0,0,0),
-            new Color(0,0,1),
-            new Color(0,1,0),
-            new Color(0,1,1),
-            new Color(1,0,0),
-            new Color(1,0,1),
-            new Color(1,1,0),
-            new Color(1,1,1)
-        };
+        if(Input.GetKeyDown(KeyCode.Tab))
+            modoPp = !modoPp;
+        if(modoPp)
+            UpdatePpCam();
+        else
+            CamaraOrbital();
+        RecalcularMatrices();
     }
 
-    private void UpdateMesh()
-    {
-        objetoCuadrado.GetComponent<MeshFilter>().mesh.vertices = vertices;
-
-        objetoCuadrado.GetComponent<MeshFilter>().mesh.triangles = triangles;
-
-        objetoCuadrado.GetComponent<MeshFilter>().mesh.colors = colores;
+    private void UpdatePpCam(){
+        float h = Input.GetAxis("Horizontal");
+        float v = Input.GetAxis("Vertical");
+        Vector3 right = Vector3.Cross(camForwardPp, camUpPp).normalized;
+        Vector3 moveDir = camForwardPp * v + right * h;
+        camPosPp += moveDir * velPp * Time.deltaTime;
+        if(Input.GetMouseButton(0)){
+           ppRotX += Input.GetAxis("Mouse X") * 2f;
+           ppRotY -= Input.GetAxis("Mouse Y") * 2f;
+           ppRotY = Mathf.Clamp(ppRotY, -85f, 85f);
+        }
+        Quaternion rotX = Quaternion.AngleAxis(ppRotX, Vector3.up);
+        Quaternion rotY = Quaternion.AngleAxis(ppRotY, Vector3.right);
+        camForwardPp = (rotY * rotX* Vector3.forward).normalized;
+        camUpPp = Vector3.up;
     }
 
-    private void CreateCamera() {
-        miCamara = new GameObject();
-        miCamara.AddComponent<Camera>();
+    private void CamaraOrbital(){
+        float rotHorizontal = 0f;
+        float rotVertical = 0f;
+        if(Input.GetMouseButton(0)){
+            rotHorizontal = Input.GetAxis("Mouse X") * velRotMouseOrb * Time.deltaTime;
+            rotVertical = Input.GetAxis("Mouse Y") * velRotMouseOrb * Time.deltaTime;
+        }
+        // Rotaci�n con el teclado
+        if (Input.GetKey(KeyCode.LeftArrow) || Input.GetKey(KeyCode.A))
+            rotHorizontal -= velRotTeclasOrb * Time.deltaTime;
+        if (Input.GetKey(KeyCode.RightArrow) || Input.GetKey(KeyCode.D))
+            rotHorizontal += velRotTeclasOrb * Time.deltaTime;
+        if (Input.GetKey(KeyCode.UpArrow)|| Input.GetKey(KeyCode.W))
+            rotVertical += velRotTeclasOrb * Time.deltaTime;
+        if (Input.GetKey(KeyCode.DownArrow)|| Input.GetKey(KeyCode.S))
+            rotVertical -= velRotTeclasOrb * Time.deltaTime;
 
-        miCamara.GetComponent<Camera>().clearFlags = CameraClearFlags.SolidColor;
+        // Rotaci�n en el eje Y
+        Quaternion rotY = Quaternion.AngleAxis(rotHorizontal, camUp);
+        camPos = rotY * (camPos - camTarget) + camTarget;
 
-        miCamara.GetComponent<Camera>().backgroundColor = Color.black;
-
+        // Rotaci�n en el eje X
+        Vector3 right = Vector3.Cross(camUp, camPos - camTarget).normalized;
+        Quaternion rotX = Quaternion.AngleAxis(rotVertical, right);
+        camPos = rotX * (camPos - camTarget) + camTarget;
+        camUp = Vector3.Cross(camPos - camTarget, right).normalized;
     }
 
-    private void CreateMaterial() {
-        Material newMaterial = new Material(Shader.Find("ShaderBasico"));
+    private void RecalcularMatrices(){
+        Vector3 newPosition = Vector3.zero;
+        Vector3 newRotation = Vector3.zero;
+        Vector3 newScale = Vector3.one;
+        Matrix4x4 modelMatrix = CreateModelMatrix(newPosition, newRotation, newScale);
+        objetoCuadrado.GetComponent<Renderer>().material.SetMatrix("_ModelMatrix", modelMatrix);
 
-        objetoCuadrado.GetComponent<MeshRenderer>().material = newMaterial;
+        Vector3 viewPos = modoPp ? camPosPp : camPos;
+        Vector3 viewTarget = modoPp ? (camPosPp + camForwardPp) : camTarget;
+        Vector3 viewUp = modoPp ? camUpPp : camUp;
+        Matrix4x4 viewMatrix = CreateViewMatrix(viewPos, viewTarget, viewUp);
+        objetoCuadrado.GetComponent<Renderer>().material.SetMatrix("_ViewMatrix", viewMatrix);
+
+        float fov = Mathf.Deg2Rad *90;
+        float aspectRatio = 16f / 9f;
+        float near = 0.1f, far = 1000f;
+        Matrix4x4 projMatrix = CalculatePerspectiveProjectionMatrix(fov, aspectRatio, near, far);
+        objetoCuadrado.GetComponent<Renderer>().material.SetMatrix("_ProjectionMatrix", GL.GetGPUProjectionMatrix(projMatrix, true));
     }
+
 
     private Matrix4x4 CreateModelMatrix(Vector3 newPosition, Vector3 newRotation, Vector3 newScale)
     {
@@ -192,23 +206,76 @@ public class SceneManager : MonoBehaviour
         return (finalMatrix);
     }
 
-    private void RecalcularMatrices()
+    private void CreateModel() 
     {
-        Vector3 newPosition = new Vector3(0,0,0);
-        Vector3 newRotation = new Vector3(0,0,0);
-        Vector3 newScale = new Vector3(1,1,1);
-        Matrix4x4 modelMatrix = CreateModelMatrix(newPosition, newRotation, newScale);
-        objetoCuadrado.GetComponent<Renderer>().material.SetMatrix("_ModelMatrix",modelMatrix);
         
-        Matrix4x4 viewMatrix = CreateViewMatrix(camPos,camTarget,camUp);
-        objetoCuadrado.GetComponent<Renderer>().material.SetMatrix("_ViewMatrix",viewMatrix);
-       
-        float fov = 90 * Mathf.Deg2Rad;
-        float aspectoRatio = 16/(float)9;
-        float nearClipPlane = 0.1f;
-        float farClipPlane = 1000 ;
-        Matrix4x4 projectionMatrix = CalculatePerspectiveProjectionMatrix(fov, aspectoRatio,nearClipPlane,farClipPlane);
-        objetoCuadrado.GetComponent<Renderer>().material.SetMatrix("_ProjectionMatrix",GL.GetGPUProjectionMatrix(projectionMatrix,true));
-                
+        vertices = new Vector3[]
+        {
+            new Vector3(1,1,1),
+            new Vector3(-1,1,1),
+            new Vector3(1,1,-1),
+            new Vector3(-1,1,-1),
+            new Vector3(1,-1,1),
+            new Vector3(-1,-1,1),
+            new Vector3(1,-1,-1),
+            new Vector3(-1,-1,-1),
+        };
+
+        triangles = new int[]{
+            // Cara superior
+            0,1,2,
+            3,2,1,
+            // Cara inferior
+            4,6,5,
+            7,5,6,
+            // Cara frontal
+            0,2,4,
+            6,4,2,
+            // Cara trasera
+            1,5,3,
+            7,3,5,
+            // Cara izquierda
+            1,0,5,
+            4,5,0,
+            // Cara derecha
+            2,3,6,
+            7,6,3
+        };
+        colores = new Color[]{
+            new Color(0,0,0),
+            new Color(0,0,1),
+            new Color(0,1,0),
+            new Color(0,1,1),
+            new Color(1,0,0),
+            new Color(1,0,1),
+            new Color(1,1,0),
+            new Color(1,1,1)
+        };
     }
+
+    private void UpdateMesh()
+    {
+        objetoCuadrado.GetComponent<MeshFilter>().mesh.vertices = vertices;
+
+        objetoCuadrado.GetComponent<MeshFilter>().mesh.triangles = triangles;
+
+        objetoCuadrado.GetComponent<MeshFilter>().mesh.colors = colores;
+    }
+
+    private void CreateCamera() {
+        CamaraOrb = new GameObject();
+        CamaraOrb.AddComponent<Camera>();
+
+        CamaraOrb.GetComponent<Camera>().clearFlags = CameraClearFlags.SolidColor;
+
+        CamaraOrb.GetComponent<Camera>().backgroundColor = Color.black;
+
+    }
+
+    private void CreateMaterial() {
+        Material newMaterial = new Material(Shader.Find("ShaderBasico"));
+
+        objetoCuadrado.GetComponent<MeshRenderer>().material = newMaterial;
+    }
+   
 }
