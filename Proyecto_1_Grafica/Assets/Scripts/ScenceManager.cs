@@ -4,10 +4,7 @@ using UnityEngine;
 
 public class SceneManager : MonoBehaviour
 {
-    private Vector3[] vertices;
-
-    private int[] triangles;
-
+ 
     private GameObject objetoCuadrado;
 
     private GameObject CamaraOrb, CamaraPp;
@@ -26,17 +23,9 @@ public class SceneManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        objetoCuadrado = new GameObject();
+        FileReader lector = new FileReader("Cubo");
+        objetoCuadrado = lector.getObject();
 
-        objetoCuadrado.AddComponent<MeshFilter>();
-
-        objetoCuadrado.GetComponent<MeshFilter>().mesh = new Mesh();
-
-        objetoCuadrado.AddComponent<MeshRenderer>();
-
-        CreateModel();
-        UpdateMesh();
-        CreateMaterial();
         CreateCamera();
         camPos = new Vector3(0,5,0);
         camTarget = new Vector3(0,0,0);
@@ -206,62 +195,6 @@ public class SceneManager : MonoBehaviour
         return (finalMatrix);
     }
 
-    private void CreateModel() 
-    {
-        
-        vertices = new Vector3[]
-        {
-            new Vector3(1,1,1),
-            new Vector3(-1,1,1),
-            new Vector3(1,1,-1),
-            new Vector3(-1,1,-1),
-            new Vector3(1,-1,1),
-            new Vector3(-1,-1,1),
-            new Vector3(1,-1,-1),
-            new Vector3(-1,-1,-1),
-        };
-
-        triangles = new int[]{
-            // Cara superior
-            0,1,2,
-            3,2,1,
-            // Cara inferior
-            4,6,5,
-            7,5,6,
-            // Cara frontal
-            0,2,4,
-            6,4,2,
-            // Cara trasera
-            1,5,3,
-            7,3,5,
-            // Cara izquierda
-            1,0,5,
-            4,5,0,
-            // Cara derecha
-            2,3,6,
-            7,6,3
-        };
-        colores = new Color[]{
-            new Color(0,0,0),
-            new Color(0,0,1),
-            new Color(0,1,0),
-            new Color(0,1,1),
-            new Color(1,0,0),
-            new Color(1,0,1),
-            new Color(1,1,0),
-            new Color(1,1,1)
-        };
-    }
-
-    private void UpdateMesh()
-    {
-        objetoCuadrado.GetComponent<MeshFilter>().mesh.vertices = vertices;
-
-        objetoCuadrado.GetComponent<MeshFilter>().mesh.triangles = triangles;
-
-        objetoCuadrado.GetComponent<MeshFilter>().mesh.colors = colores;
-    }
-
     private void CreateCamera() {
         CamaraOrb = new GameObject();
         CamaraOrb.AddComponent<Camera>();
@@ -270,12 +203,6 @@ public class SceneManager : MonoBehaviour
 
         CamaraOrb.GetComponent<Camera>().backgroundColor = Color.black;
 
-    }
-
-    private void CreateMaterial() {
-        Material newMaterial = new Material(Shader.Find("ShaderBasico"));
-
-        objetoCuadrado.GetComponent<MeshRenderer>().material = newMaterial;
     }
    
 }
