@@ -68,7 +68,7 @@ public class FileReader
                 float z = float.Parse(palabras[3],CultureInfo.InvariantCulture);
                 vertices[indiceVertices] = new Vector3(x,y,z);
 
-                colores[indiceVertices] = new Color(1,0,0);
+                colores[indiceVertices] = new Color(1,1,1);
                 indiceVertices++;
 
                 if(primerVertice)
@@ -152,5 +152,12 @@ public class FileReader
         
         Vector3 minimos = new Vector3(xMin-xProm, yMin-yProm, zMin-zProm); 
         return minimos;
+    }
+
+    public void setColor(float r, float g, float b)
+    {
+        for(int i=0 ; i<colores.Length ; i++)
+            colores[i] = new Color(r,g,b);
+        obj.GetComponent<MeshFilter>().mesh.colors = colores;
     }
 }

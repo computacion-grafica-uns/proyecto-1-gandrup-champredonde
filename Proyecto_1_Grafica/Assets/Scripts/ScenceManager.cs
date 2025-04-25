@@ -4,8 +4,10 @@ using UnityEngine;
 
 public class SceneManager : MonoBehaviour
 {
- 
-    private GameObject objetoCuadrado;
+    private GameObject[] objetos;
+    private int indiceObjetos;
+    private static int cantObjetos = 4;
+    private GameObject Paredes,Techo;
 
     private GameObject CamaraOrb, CamaraPp;
 
@@ -23,14 +25,15 @@ public class SceneManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        FileReader lector = new FileReader("Cubo");
-        objetoCuadrado = lector.getObject();
-
+        objetos = new GameObject[cantObjetos];
+        indiceObjetos = 0;
+        cargarObjetos();
+        
         CreateCamera();
-        camPos = new Vector3(0,5,0);
-        camTarget = new Vector3(0,0,0);
-        camUp = new Vector3(0,0,1);
-        camPosPp = new Vector3(0,1,-3);
+        camPos = new Vector3(0,1.5f,0);
+        camTarget = new Vector3(3.5f,1.5f,4.5f);
+        camUp = new Vector3(0,1,0);
+        camPosPp = new Vector3(3.5f,1.5f,-3);
         camForwardPp = new Vector3(0,0,1);
         camUpPp = new Vector3(0,1,0);
         velRotMouseOrb = 100f;
@@ -96,23 +99,21 @@ public class SceneManager : MonoBehaviour
     }
 
     private void RecalcularMatrices(){
-        Vector3 newPosition = Vector3.zero;
-        Vector3 newRotation = Vector3.zero;
-        Vector3 newScale = Vector3.one;
-        Matrix4x4 modelMatrix = CreateModelMatrix(newPosition, newRotation, newScale);
-        objetoCuadrado.GetComponent<Renderer>().material.SetMatrix("_ModelMatrix", modelMatrix);
 
         Vector3 viewPos = modoPp ? camPosPp : camPos;
         Vector3 viewTarget = modoPp ? (camPosPp + camForwardPp) : camTarget;
         Vector3 viewUp = modoPp ? camUpPp : camUp;
         Matrix4x4 viewMatrix = CreateViewMatrix(viewPos, viewTarget, viewUp);
-        objetoCuadrado.GetComponent<Renderer>().material.SetMatrix("_ViewMatrix", viewMatrix);
 
         float fov = Mathf.Deg2Rad *90;
         float aspectRatio = 16f / 9f;
         float near = 0.1f, far = 1000f;
         Matrix4x4 projMatrix = CalculatePerspectiveProjectionMatrix(fov, aspectRatio, near, far);
-        objetoCuadrado.GetComponent<Renderer>().material.SetMatrix("_ProjectionMatrix", GL.GetGPUProjectionMatrix(projMatrix, true));
+        for(int i = 0 ; i<cantObjetos ; i++)
+        {
+            objetos[i].GetComponent<Renderer>().material.SetMatrix("_ViewMatrix", viewMatrix);
+            objetos[i].GetComponent<Renderer>().material.SetMatrix("_ProjectionMatrix", GL.GetGPUProjectionMatrix(projMatrix, true));
+        }
     }
 
 
@@ -204,5 +205,73 @@ public class SceneManager : MonoBehaviour
         CamaraOrb.GetComponent<Camera>().backgroundColor = Color.black;
 
     }
+    
+    private void cargarObjetos()
+    {
+        cargarPiso();
+        cargarTecho();
+        cargarParedes();
+        cargaBed();
+    }
+
+    private void cargarPiso(){
+        FileReader lector = new FileReader("Piso");
+        GameObject piso = lector.getObject();
+        Vector3 vmin = lector.coordenadasMinimas();
+
+        Vector3 newPosition = new Vector3(-vmin.x,0,-vmin.z);
+        Vector3 newRotation = new Vector3(0,0,0);
+        Vector3 newScale = new Vector3(1,1,1);
+        Matrix4x4 modelMatrix = CreateModelMatrix(newPosition, newRotation, newScale);
+        piso.GetComponent<Renderer>().material.SetMatrix("_ModelMatrix", modelMatrix);
+        objetos[indiceObjetos] = piso;
+        indiceObjetos++;
+    }
+
+    private void cargarTecho(){
+        FileReader lector = new FileReader("Piso");
+        Techo = lector.getObject();
+        Vector3 vmin = lector.coordenadasMinimas();
+
+        Vector3 newPosition = new Vector3(-vmin.x,3,-vmin.z);
+        Vector3 newRotation = new Vector3(180*Mathf.Deg2Rad,0,0);
+        Vector3 newScale = new Vector3(1,1,1);
+        Matrix4x4 modelMatrix = CreateModelMatrix(newPosition, newRotation, newScale);
+        Techo.GetComponent<Renderer>().material.SetMatrix("_ModelMatrix", modelMatrix);
+        objetos[indiceObjetos] = Techo;
+        indiceObjetos++;
+    }
    
+
+    private void cargarParedes()
+    {
+        FileReader lector = new FileReader("Paredes");
+        lector.setColor(0.8f,0.8f,0.8f);
+        Paredes = lector.getObject();
+
+        Vector3 vmin = lector.coordenadasMinimas();
+        Vector3 newPosition = new Vector3(-vmin.z,-vmin.y,-vmin.x);
+        Vector3 newRotation = new Vector3(0,-90 * Mathf.Deg2Rad,0);
+        Vector3 newScale = new Vector3(1,1,1);
+        Matrix4x4 modelMatrix = CreateModelMatrix(newPosition, newRotation, newScale);
+        Paredes.GetComponent<Renderer>().material.SetMatrix("_ModelMatrix", modelMatrix);
+        objetos[indiceObjetos] = Paredes;
+        indiceObjetos++;
+    }
+
+    private void cargaBed()
+    {
+     FileReader lector = new FileReader("Bed");
+        lector.setColor(0.2f,0.2f,0.2f);
+        GameObject Bed = lector.getObject();
+
+        Vector3 vmin = lector.coordenadasMinimas();
+        Vector3 newPosition = new Vector3(6.998f + vmin.x,-vmin.y - 0.01f,1);
+        Vector3 newRotation = new Vector3(0,0,0);
+        Vector3 newScale = new Vector3(1,1,0.75f);
+        Matrix4x4 modelMatrix = CreateModelMatrix(newPosition, newRotation, newScale);
+        Bed.GetComponent<Renderer>().material.SetMatrix("_ModelMatrix", modelMatrix);
+        objetos[indiceObjetos] = Bed;
+        indiceObjetos++;   
+    }
 }
