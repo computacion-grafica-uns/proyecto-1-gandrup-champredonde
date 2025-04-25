@@ -4,9 +4,9 @@ using UnityEngine;
 
 public class SceneManager : MonoBehaviour
 {
-    private GameObject[] objetos;
-    private int indiceObjetos;
-    private static int cantObjetos = 4;
+   
+    private List<GameObject> objetos;
+    
     private GameObject Paredes,Techo;
 
     private GameObject CamaraOrb, CamaraPp;
@@ -21,12 +21,17 @@ public class SceneManager : MonoBehaviour
 
     private Vector3 camPosPp, camForwardPp, camUpPp;
     
-    private Color[] colores;
+    private Matrix4x4 projMatrix;
+
     // Start is called before the first frame update
     void Start()
     {
-        objetos = new GameObject[cantObjetos];
-        indiceObjetos = 0;
+        float fov = Mathf.Deg2Rad *90;
+        float aspectRatio = 16f / 9f;
+        float near = 0.1f, far = 1000f;
+        projMatrix = CalculatePerspectiveProjectionMatrix(fov, aspectRatio, near, far);
+
+        objetos = new List<GameObject>();
         cargarObjetos();
         
         CreateCamera();
@@ -38,6 +43,7 @@ public class SceneManager : MonoBehaviour
         camUpPp = new Vector3(0,1,0);
         velRotMouseOrb = 100f;
         velRotTeclasOrb = 30f;
+        
         RecalcularMatrices();
     }
 
@@ -53,7 +59,8 @@ public class SceneManager : MonoBehaviour
         RecalcularMatrices();
     }
 
-    private void UpdatePpCam(){
+    private void UpdatePpCam()
+    {
         float h = Input.GetAxis("Horizontal");
         float v = Input.GetAxis("Vertical");
         Vector3 right = Vector3.Cross(camForwardPp, camUpPp).normalized;
@@ -109,11 +116,9 @@ public class SceneManager : MonoBehaviour
         float aspectRatio = 16f / 9f;
         float near = 0.1f, far = 1000f;
         Matrix4x4 projMatrix = CalculatePerspectiveProjectionMatrix(fov, aspectRatio, near, far);
-        for(int i = 0 ; i<cantObjetos ; i++)
-        {
-            objetos[i].GetComponent<Renderer>().material.SetMatrix("_ViewMatrix", viewMatrix);
-            objetos[i].GetComponent<Renderer>().material.SetMatrix("_ProjectionMatrix", GL.GetGPUProjectionMatrix(projMatrix, true));
-        }
+        foreach(GameObject objeto in objetos)
+            objeto.GetComponent<Renderer>().material.SetMatrix("_ViewMatrix", viewMatrix);
+            
     }
 
 
@@ -211,21 +216,22 @@ public class SceneManager : MonoBehaviour
         cargarPiso();
         cargarTecho();
         cargarParedes();
-        cargaBed();
+        cargarBed();
+        cargarToilet();
     }
 
     private void cargarPiso(){
         FileReader lector = new FileReader("Piso");
-        GameObject piso = lector.getObject();
+        GameObject Piso = lector.getObject();
         Vector3 vmin = lector.coordenadasMinimas();
 
         Vector3 newPosition = new Vector3(-vmin.x,0,-vmin.z);
         Vector3 newRotation = new Vector3(0,0,0);
         Vector3 newScale = new Vector3(1,1,1);
         Matrix4x4 modelMatrix = CreateModelMatrix(newPosition, newRotation, newScale);
-        piso.GetComponent<Renderer>().material.SetMatrix("_ModelMatrix", modelMatrix);
-        objetos[indiceObjetos] = piso;
-        indiceObjetos++;
+        Piso.GetComponent<Renderer>().material.SetMatrix("_ModelMatrix", modelMatrix);
+        Piso.GetComponent<Renderer>().material.SetMatrix("_ProjectionMatrix", GL.GetGPUProjectionMatrix(projMatrix, true));
+        objetos.Add(Piso);
     }
 
     private void cargarTecho(){
@@ -238,8 +244,8 @@ public class SceneManager : MonoBehaviour
         Vector3 newScale = new Vector3(1,1,1);
         Matrix4x4 modelMatrix = CreateModelMatrix(newPosition, newRotation, newScale);
         Techo.GetComponent<Renderer>().material.SetMatrix("_ModelMatrix", modelMatrix);
-        objetos[indiceObjetos] = Techo;
-        indiceObjetos++;
+        Techo.GetComponent<Renderer>().material.SetMatrix("_ProjectionMatrix", GL.GetGPUProjectionMatrix(projMatrix, true));
+        objetos.Add(Techo);
     }
    
 
@@ -255,13 +261,13 @@ public class SceneManager : MonoBehaviour
         Vector3 newScale = new Vector3(1,1,1);
         Matrix4x4 modelMatrix = CreateModelMatrix(newPosition, newRotation, newScale);
         Paredes.GetComponent<Renderer>().material.SetMatrix("_ModelMatrix", modelMatrix);
-        objetos[indiceObjetos] = Paredes;
-        indiceObjetos++;
+        Paredes.GetComponent<Renderer>().material.SetMatrix("_ProjectionMatrix", GL.GetGPUProjectionMatrix(projMatrix, true));
+        objetos.Add(Paredes);
     }
 
-    private void cargaBed()
+    private void cargarBed()
     {
-     FileReader lector = new FileReader("Bed");
+        FileReader lector = new FileReader("Bed");
         lector.setColor(0.2f,0.2f,0.2f);
         GameObject Bed = lector.getObject();
 
@@ -271,7 +277,23 @@ public class SceneManager : MonoBehaviour
         Vector3 newScale = new Vector3(1,1,0.75f);
         Matrix4x4 modelMatrix = CreateModelMatrix(newPosition, newRotation, newScale);
         Bed.GetComponent<Renderer>().material.SetMatrix("_ModelMatrix", modelMatrix);
-        objetos[indiceObjetos] = Bed;
-        indiceObjetos++;   
+        Bed.GetComponent<Renderer>().material.SetMatrix("_ProjectionMatrix", GL.GetGPUProjectionMatrix(projMatrix, true));
+        objetos.Add(Bed);
+    }
+
+    private void cargarToilet()
+    {
+        FileReader lector = new FileReader("Toilet");
+        lector.setColor(0.9f,0.9f,0.9f);
+        GameObject Toilet = lector.getObject();
+
+        Vector3 vmin = lector.coordenadasMinimas();
+        Vector3 newPosition = new Vector3(6.998f + vmin.x,-vmin.y - 0.01f,6.5f);
+        Vector3 newRotation = new Vector3(0,180*Mathf.Deg2Rad,0);
+        Vector3 newScale = new Vector3(1,1,1);
+        Matrix4x4 modelMatrix = CreateModelMatrix(newPosition, newRotation, newScale);
+        Toilet.GetComponent<Renderer>().material.SetMatrix("_ModelMatrix", modelMatrix);
+        Toilet.GetComponent<Renderer>().material.SetMatrix("_ProjectionMatrix", GL.GetGPUProjectionMatrix(projMatrix, true));
+        objetos.Add(Toilet);
     }
 }

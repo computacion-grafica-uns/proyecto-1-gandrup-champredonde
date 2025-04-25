@@ -10,6 +10,7 @@ public class FileReader
     private float xMax, yMax, zMax, xMin, yMin, zMin;
     private GameObject obj;
     private Vector3[] vertices;
+    private List<int> listTriangles;
     private int[] triangles;
     private Color[] colores;
     
@@ -53,8 +54,7 @@ public class FileReader
 
         colores = new Color[longVertices];
 
-        int longTriangles = (fileData.Split(new string[] { "f " }, StringSplitOptions.None).Length - 1) * 3;
-        triangles = new int[longTriangles];
+        listTriangles = new List<int>();
 
         bool primerVertice = true;
 
@@ -92,15 +92,22 @@ public class FileReader
                 string[] triangulos = lines[i].Split(new char[]{' '},StringSplitOptions.RemoveEmptyEntries);
                 for(int j=1 ; j<triangulos.Length ; j++)
                 {
-                    string[] verticesCara = triangulos[j].Split('/');
-                    triangles[indiceTriangles] = int.Parse(verticesCara[0]) - 1;
+                    string[] verticesCara = triangulos[j].Split(new char[]{'/'},StringSplitOptions.RemoveEmptyEntries);
+                    int nroVertice = int.Parse(verticesCara[0]) - 1 ;
+                    Debug.Log(nroVertice);
+                    listTriangles.Add(nroVertice);
+                    
                     if(j == 4) // si habia 4 vertices para formar la cara
                     {
-                        triangles[indiceTriangles + 1] = triangles[indiceTriangles - 1] ;
-                        triangles[indiceTriangles + 2] = triangles[indiceTriangles - 2] ;
-                        indiceTriangles += 2;
+                        verticesCara = triangulos[j-1].Split(new char[]{'/'},StringSplitOptions.RemoveEmptyEntries);
+                        nroVertice =int.Parse(verticesCara[0]) - 1 ;
+                        listTriangles.Add(nroVertice);
+
+                        verticesCara = triangulos[j-2].Split(new char[]{'/'},StringSplitOptions.RemoveEmptyEntries);
+                        nroVertice =int.Parse(verticesCara[0]) - 1 ;
+                        listTriangles.Add(nroVertice);
                     }
-                    indiceTriangles++;
+                   
                 }
             }
         }
@@ -112,15 +119,14 @@ public class FileReader
         float yProm = (yMax+yMin)/2;
         float zProm = (zMax+zMin)/2;
         for(int i = 0; i < vertices.Length; i++)
-        {
             vertices[i] = new Vector3(vertices[i].x - xProm , vertices[i].y - yProm , vertices[i].z - zProm);
-        }
     }
 
     private void UpdateMesh()
     {
         obj.GetComponent<MeshFilter>().mesh.vertices = vertices;
 
+        triangles = listTriangles.ToArray();
         obj.GetComponent<MeshFilter>().mesh.triangles = triangles;
 
         obj.GetComponent<MeshFilter>().mesh.colors = colores;
