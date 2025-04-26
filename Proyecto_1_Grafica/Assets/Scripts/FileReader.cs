@@ -94,16 +94,15 @@ public class FileReader
                 {
                     string[] verticesCara = triangulos[j].Split(new char[]{'/'},StringSplitOptions.RemoveEmptyEntries);
                     int nroVertice = int.Parse(verticesCara[0]) - 1 ;
-                    Debug.Log(nroVertice);
                     listTriangles.Add(nroVertice);
                     
                     if(j == 4) // si habia 4 vertices para formar la cara
                     {
-                        verticesCara = triangulos[j-1].Split(new char[]{'/'},StringSplitOptions.RemoveEmptyEntries);
+                        verticesCara = triangulos[j-3].Split(new char[]{'/'},StringSplitOptions.RemoveEmptyEntries);
                         nroVertice =int.Parse(verticesCara[0]) - 1 ;
                         listTriangles.Add(nroVertice);
 
-                        verticesCara = triangulos[j-2].Split(new char[]{'/'},StringSplitOptions.RemoveEmptyEntries);
+                        verticesCara = triangulos[j-1].Split(new char[]{'/'},StringSplitOptions.RemoveEmptyEntries);
                         nroVertice =int.Parse(verticesCara[0]) - 1 ;
                         listTriangles.Add(nroVertice);
                     }
