@@ -46,7 +46,6 @@ public class FileReader
     private void ReadEachLine(string fileData)
     {   
         int indiceVertices = 0;
-        int indiceTriangles = 0;
         string[] lines = fileData.Split('\n');
 
         int longVertices = fileData.Split(new string[] { "v " }, StringSplitOptions.None).Length - 1;

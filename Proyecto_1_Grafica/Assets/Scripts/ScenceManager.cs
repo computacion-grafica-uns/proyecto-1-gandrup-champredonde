@@ -28,7 +28,7 @@ public class SceneManager : MonoBehaviour
     {
         float fov = Mathf.Deg2Rad *90;
         float aspectRatio = 16f / 9f;
-        float near = 0.1f, far = 1000f;
+        float near = 0.1f, far = 500f;
         projMatrix = CalculatePerspectiveProjectionMatrix(fov, aspectRatio, near, far);
 
         objetos = new List<GameObject>();
@@ -216,18 +216,41 @@ public class SceneManager : MonoBehaviour
     
     private void cargarObjetos()
     {
+        //cargo estructura
         cargarPiso();
         cargarTecho();
         cargarParedes();
-        cargarBed();
+        
+        //cargo muebles del baño
         cargarToilet();
         cargarShower();
         cargarSink();
         cargarMirror();
+
+        //cargo muebles cocina
         cargar90Degrees();
         cargarKitchenCabinetRounded();
         cargarKitchenStoveWhithOven();
         cargarFridge();
+
+        //cargo muebles sala de estar
+        cargar90DegreesSofa();
+        cargarSofaWhithLegs();
+
+        //cargo muebles comedor
+        cargarTable();
+        cargarChairMesaCocina();
+        cargarChairMesaSofa();
+        cargarChairMesaVentana();
+        cargarChairMesaBanio();
+
+        //cargo muebles habitacion
+        cargarBed();
+        cargarLittleOne();
+        cargarCloset();
+        cargarPcTable();
+        cargarPcChair();
+        cargarPc();
     }
 
     private void cargarPiso()
@@ -275,22 +298,6 @@ public class SceneManager : MonoBehaviour
         Paredes.GetComponent<Renderer>().material.SetMatrix("_ModelMatrix", modelMatrix);
         Paredes.GetComponent<Renderer>().material.SetMatrix("_ProjectionMatrix", GL.GetGPUProjectionMatrix(projMatrix, true));
         objetos.Add(Paredes);
-    }
-
-    private void cargarBed()
-    {
-        FileReader lector = new FileReader("Bed");
-        lector.setColor(0.2f,0.2f,0.2f);
-        GameObject Bed = lector.getObject();
-
-        Vector3 vmin = lector.coordenadasMinimas();
-        Vector3 newPosition = new Vector3(6.998f + vmin.x,-vmin.y - 0.01f,1);
-        Vector3 newRotation = new Vector3(0,0,0);
-        Vector3 newScale = new Vector3(1,1,0.75f);
-        Matrix4x4 modelMatrix = CreateModelMatrix(newPosition, newRotation, newScale);
-        Bed.GetComponent<Renderer>().material.SetMatrix("_ModelMatrix", modelMatrix);
-        Bed.GetComponent<Renderer>().material.SetMatrix("_ProjectionMatrix", GL.GetGPUProjectionMatrix(projMatrix, true));
-        objetos.Add(Bed);
     }
 
     private void cargarToilet()
@@ -360,7 +367,7 @@ public class SceneManager : MonoBehaviour
     private void cargar90Degrees()
     {
         FileReader lector = new FileReader("90DegreesUpperCabinet");
-        lector.setColor(0.65f, 0.2f, 0.2f);
+        lector.setColor(0.5f, 0.2f, 0.2f);
         GameObject DegreesUpperCabinet = lector.getObject();
 
         Vector3 vmin = lector.coordenadasMinimas();
@@ -376,7 +383,7 @@ public class SceneManager : MonoBehaviour
     private void cargarKitchenCabinetRounded()
     {
         FileReader lector = new FileReader("KitchenCabinetRounded");
-        lector.setColor(0.65f, 0.2f, 0.2f);
+        lector.setColor(0.5f, 0.2f, 0.2f);
         GameObject KitchenCabinetRounded = lector.getObject();
 
         Vector3 vmin = lector.coordenadasMinimas();
@@ -419,5 +426,213 @@ public class SceneManager : MonoBehaviour
         Fridge.GetComponent<Renderer>().material.SetMatrix("_ModelMatrix", modelMatrix);
         Fridge.GetComponent<Renderer>().material.SetMatrix("_ProjectionMatrix", GL.GetGPUProjectionMatrix(projMatrix, true));
         objetos.Add(Fridge);
+    }
+
+    private void cargar90DegreesSofa()
+    {
+        FileReader lector = new FileReader("90DegreesSofa");
+        lector.setColor(0, 0.4f, 0.4f);
+        GameObject DegreesSofa = lector.getObject();
+
+        Vector3 vmin = lector.coordenadasMinimas();
+        Vector3 newPosition = new Vector3(0.001f - (vmin.x*0.7f), 0.001f - vmin.y, 0.001f - (vmin.z*0.6f));
+        Vector3 newRotation = new Vector3(0, 0 , 0);
+        Vector3 newScale = new Vector3(0.7f,1,0.6f);
+        Matrix4x4 modelMatrix = CreateModelMatrix(newPosition, newRotation, newScale);
+        DegreesSofa.GetComponent<Renderer>().material.SetMatrix("_ModelMatrix", modelMatrix);
+        DegreesSofa.GetComponent<Renderer>().material.SetMatrix("_ProjectionMatrix", GL.GetGPUProjectionMatrix(projMatrix, true));
+        objetos.Add(DegreesSofa);
+    }
+
+    private void cargarSofaWhithLegs()
+    {
+        FileReader lector = new FileReader("sofaWhithLegs");
+        lector.setColor(0, 0.4f, 0.4f);
+        GameObject sofaWhithLegs = lector.getObject();
+
+        Vector3 vmin = lector.coordenadasMinimas();
+        Vector3 newPosition = new Vector3(0.5f - (vmin.z*0.6f), 0.001f - vmin.y, 1.5f - (vmin.z*0.6f));
+        Vector3 newRotation = new Vector3(0, 90 * Mathf.Deg2Rad , 0);
+        Vector3 newScale = new Vector3(0.6f,1,0.6f);
+        Matrix4x4 modelMatrix = CreateModelMatrix(newPosition, newRotation, newScale);
+        sofaWhithLegs.GetComponent<Renderer>().material.SetMatrix("_ModelMatrix", modelMatrix);
+        sofaWhithLegs.GetComponent<Renderer>().material.SetMatrix("_ProjectionMatrix", GL.GetGPUProjectionMatrix(projMatrix, true));
+        objetos.Add(sofaWhithLegs);
+    }
+
+    private void cargarTable()
+    {
+        FileReader lector = new FileReader("Table");
+        lector.setColor(0.7f, 0.4f, 0.4f);
+        GameObject Table = lector.getObject();
+
+        Vector3 vmin = lector.coordenadasMinimas();
+        Vector3 newPosition = new Vector3(1.5f , 0.001f - (vmin.y*0.8f), 5);
+        Vector3 newRotation = new Vector3(0, 0 , 0);
+        Vector3 newScale = new Vector3(0.7f,0.8f,0.7f);
+        Matrix4x4 modelMatrix = CreateModelMatrix(newPosition, newRotation, newScale);
+        Table.GetComponent<Renderer>().material.SetMatrix("_ModelMatrix", modelMatrix);
+        Table.GetComponent<Renderer>().material.SetMatrix("_ProjectionMatrix", GL.GetGPUProjectionMatrix(projMatrix, true));
+        objetos.Add(Table);
+    }
+
+    private void cargarChairMesaCocina()
+    {
+        FileReader lector = new FileReader("chair3");
+        lector.setColor(0.7f, 0.3f, 0.3f);
+        GameObject Chair = lector.getObject();
+
+        Vector3 vmin = lector.coordenadasMinimas();
+        Vector3 newPosition = new Vector3(1.5f, 0.001f - (vmin.y*1), 6);
+        Vector3 newRotation = new Vector3(0, 90*Mathf.Deg2Rad , 0);
+        Vector3 newScale = new Vector3(0.7f,1,0.7f);
+        Matrix4x4 modelMatrix = CreateModelMatrix(newPosition, newRotation, newScale);
+        Chair.GetComponent<Renderer>().material.SetMatrix("_ModelMatrix", modelMatrix);
+        Chair.GetComponent<Renderer>().material.SetMatrix("_ProjectionMatrix", GL.GetGPUProjectionMatrix(projMatrix, true));
+        objetos.Add(Chair);
+    }
+
+    private void cargarChairMesaSofa()
+    {
+        FileReader lector = new FileReader("chair3");
+        lector.setColor(0.7f, 0.3f, 0.3f);
+        GameObject Chair = lector.getObject();
+
+        Vector3 vmin = lector.coordenadasMinimas();
+        Vector3 newPosition = new Vector3(1.5f, 0.001f - (vmin.y*1), 4);
+        Vector3 newRotation = new Vector3(0, 270*Mathf.Deg2Rad , 0);
+        Vector3 newScale = new Vector3(0.7f,1,0.7f);
+        Matrix4x4 modelMatrix = CreateModelMatrix(newPosition, newRotation, newScale);
+        Chair.GetComponent<Renderer>().material.SetMatrix("_ModelMatrix", modelMatrix);
+        Chair.GetComponent<Renderer>().material.SetMatrix("_ProjectionMatrix", GL.GetGPUProjectionMatrix(projMatrix, true));
+        objetos.Add(Chair);
+    }
+
+    private void cargarChairMesaVentana()
+    {
+        FileReader lector = new FileReader("chair3");
+        lector.setColor(0.7f, 0.3f, 0.3f);
+        GameObject Chair = lector.getObject();
+
+        Vector3 vmin = lector.coordenadasMinimas();
+        Vector3 newPosition = new Vector3(0.5f, 0.001f - (vmin.y*1), 5);
+        Vector3 newRotation = new Vector3(0,0,0);
+        Vector3 newScale = new Vector3(0.7f,1,0.7f);
+        Matrix4x4 modelMatrix = CreateModelMatrix(newPosition, newRotation, newScale);
+        Chair.GetComponent<Renderer>().material.SetMatrix("_ModelMatrix", modelMatrix);
+        Chair.GetComponent<Renderer>().material.SetMatrix("_ProjectionMatrix", GL.GetGPUProjectionMatrix(projMatrix, true));
+        objetos.Add(Chair);
+    }
+
+    private void cargarChairMesaBanio()
+    {
+        FileReader lector = new FileReader("chair3");
+        lector.setColor(0.7f, 0.3f, 0.3f);
+        GameObject Chair = lector.getObject();
+
+        Vector3 vmin = lector.coordenadasMinimas();
+        Vector3 newPosition = new Vector3(2.5f, 0.001f - (vmin.y*1), 5);
+        Vector3 newRotation = new Vector3(0,180*Mathf.Deg2Rad,0);
+        Vector3 newScale = new Vector3(0.7f,1,0.7f);
+        Matrix4x4 modelMatrix = CreateModelMatrix(newPosition, newRotation, newScale);
+        Chair.GetComponent<Renderer>().material.SetMatrix("_ModelMatrix", modelMatrix);
+        Chair.GetComponent<Renderer>().material.SetMatrix("_ProjectionMatrix", GL.GetGPUProjectionMatrix(projMatrix, true));
+        objetos.Add(Chair);
+    }
+
+    private void cargarBed()
+    {
+        FileReader lector = new FileReader("Bed");
+        lector.setColor(0.2f,0.2f,0.2f);
+        GameObject Bed = lector.getObject();
+
+        Vector3 vmin = lector.coordenadasMinimas();
+        Vector3 newPosition = new Vector3(6.998f + vmin.x,-vmin.y + 0.001f,4.999f + (vmin.z * 0.75f));
+        Vector3 newRotation = new Vector3(0,0,0);
+        Vector3 newScale = new Vector3(1,1,0.75f);
+        Matrix4x4 modelMatrix = CreateModelMatrix(newPosition, newRotation, newScale);
+        Bed.GetComponent<Renderer>().material.SetMatrix("_ModelMatrix", modelMatrix);
+        Bed.GetComponent<Renderer>().material.SetMatrix("_ProjectionMatrix", GL.GetGPUProjectionMatrix(projMatrix, true));
+        objetos.Add(Bed);
+    }
+
+    private void cargarLittleOne()
+    {
+        FileReader lector = new FileReader("littleOne");
+        lector.setColor(0.3f,0.3f,0.2f);
+        GameObject littleOne = lector.getObject();
+
+        Vector3 vmin = lector.coordenadasMinimas();
+        Vector3 newPosition = new Vector3(5,-vmin.y + 0.001f,4.999f + vmin.z);
+        Vector3 newRotation = new Vector3(0,90 * Mathf.Deg2Rad,0);
+        Vector3 newScale = new Vector3(1,1,1);
+        Matrix4x4 modelMatrix = CreateModelMatrix(newPosition, newRotation, newScale);
+        littleOne.GetComponent<Renderer>().material.SetMatrix("_ModelMatrix", modelMatrix);
+        littleOne.GetComponent<Renderer>().material.SetMatrix("_ProjectionMatrix", GL.GetGPUProjectionMatrix(projMatrix, true));
+        objetos.Add(littleOne);
+    }
+
+    private void cargarCloset()
+    {
+        FileReader lector = new FileReader("closet");
+        lector.setColor(0.15f,0.3f,0.2f);
+        GameObject Closet = lector.getObject();
+
+        Vector3 vmin = lector.coordenadasMinimas();
+        Vector3 newPosition = new Vector3(6.999f + vmin.x,-vmin.y + 0.001f, 0.15f - vmin.z);
+        Vector3 newRotation = new Vector3(0,0,0);
+        Vector3 newScale = new Vector3(1,1,1);
+        Matrix4x4 modelMatrix = CreateModelMatrix(newPosition, newRotation, newScale);
+        Closet.GetComponent<Renderer>().material.SetMatrix("_ModelMatrix", modelMatrix);
+        Closet.GetComponent<Renderer>().material.SetMatrix("_ProjectionMatrix", GL.GetGPUProjectionMatrix(projMatrix, true));
+        objetos.Add(Closet);
+    }
+
+    private void cargarPcTable()
+    {
+        FileReader lector = new FileReader("pcTable1");
+        lector.setColor(0.3f,0.3f,0.2f);
+        GameObject pcTable1 = lector.getObject();
+
+        Vector3 vmin = lector.coordenadasMinimas();
+        Vector3 newPosition = new Vector3(5,-vmin.y + 0.001f,0.001f - (vmin.x * 0.5f));
+        Vector3 newRotation = new Vector3(0,270 * Mathf.Deg2Rad,0);
+        Vector3 newScale = new Vector3(0.5f,1,0.5f);
+        Matrix4x4 modelMatrix = CreateModelMatrix(newPosition, newRotation, newScale);
+        pcTable1.GetComponent<Renderer>().material.SetMatrix("_ModelMatrix", modelMatrix);
+        pcTable1.GetComponent<Renderer>().material.SetMatrix("_ProjectionMatrix", GL.GetGPUProjectionMatrix(projMatrix, true));
+        objetos.Add(pcTable1);
+    }
+
+    private void cargarPcChair()
+    {
+        FileReader lector = new FileReader("pcChair");
+        lector.setColor(0.1f,0.1f,0.1f);
+        GameObject pcChair = lector.getObject();
+
+        Vector3 vmin = lector.coordenadasMinimas();
+        Vector3 newPosition = new Vector3(5.2f, 0.001f - (vmin.y * 0.1f), 1);
+        Vector3 newRotation = new Vector3(0,270 * Mathf.Deg2Rad,0);
+        Vector3 newScale = new Vector3(0.1f,0.1f,0.1f);
+        Matrix4x4 modelMatrix = CreateModelMatrix(newPosition, newRotation, newScale);
+        pcChair.GetComponent<Renderer>().material.SetMatrix("_ModelMatrix", modelMatrix);
+        pcChair.GetComponent<Renderer>().material.SetMatrix("_ProjectionMatrix", GL.GetGPUProjectionMatrix(projMatrix, true));
+        objetos.Add(pcChair);
+    }
+
+    private void cargarPc()
+    {
+        FileReader lector = new FileReader("PC");
+        lector.setColor(0.1f,0.1f,0.1f);
+        GameObject PC = lector.getObject();
+
+        Vector3 vmin = lector.coordenadasMinimas();
+        Vector3 newPosition = new Vector3(5.2f, 1.05f - (vmin.y * 0.1f), 0.01f -(vmin.z * 0.08f));
+        Vector3 newRotation = new Vector3(0,0,0);
+        Vector3 newScale = new Vector3(0.08f,0.1f,0.08f);
+        Matrix4x4 modelMatrix = CreateModelMatrix(newPosition, newRotation, newScale);
+        PC.GetComponent<Renderer>().material.SetMatrix("_ModelMatrix", modelMatrix);
+        PC.GetComponent<Renderer>().material.SetMatrix("_ProjectionMatrix", GL.GetGPUProjectionMatrix(projMatrix, true));
+        objetos.Add(PC);
     }
 }
