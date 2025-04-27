@@ -52,7 +52,16 @@ public class SceneManager : MonoBehaviour
     {
         if(Input.GetKeyDown(KeyCode.Tab))
             modoPp = !modoPp;
-        if(modoPp)
+
+        // Desaparecer Paredes
+        if (Input.GetKeyDown(KeyCode.P) && objetos.Contains(Paredes))
+            Paredes.SetActive(!Paredes.activeSelf);
+
+        // Desaparecer Techo
+        if (Input.GetKeyDown(KeyCode.T) && objetos.Contains(Techo))
+            Techo.SetActive(!Techo.activeSelf);
+
+        if (modoPp)
             UpdatePpCam();
         else
             CamaraOrbital();
