@@ -57,11 +57,11 @@ public class SceneManager : MonoBehaviour
         if(Input.GetKeyDown(KeyCode.Tab))
             modoPp = !modoPp;
 
-        // Desaparecer Paredes
+        // Activar y desactivar Paredes
         if (Input.GetKeyDown(KeyCode.P) && objetos.Contains(Paredes))
             Paredes.SetActive(!Paredes.activeSelf);
 
-        // Desaparecer Techo
+        // Activar y desactivar Techo
         if (Input.GetKeyDown(KeyCode.T) && objetos.Contains(Techo))
             Techo.SetActive(!Techo.activeSelf);
 
@@ -79,7 +79,8 @@ public class SceneManager : MonoBehaviour
         Vector3 right = Vector3.Cross(camForwardPp, camUpPp).normalized;
         Vector3 moveDir = camForwardPp * v + right * h;
         camPosPp += moveDir * velPp * Time.deltaTime;
-        if(Input.GetMouseButton(0)){
+        if(Input.GetMouseButton(0))
+        {
            ppRotX += Input.GetAxis("Mouse X") * 2f;
            ppRotY -= Input.GetAxis("Mouse Y") * 2f;
            ppRotY = Mathf.Clamp(ppRotY, -85f, 85f);
@@ -94,7 +95,8 @@ public class SceneManager : MonoBehaviour
     {
         float rotHorizontal = 0f;
         float rotVertical = 0f;
-        if(Input.GetMouseButton(0)){
+        if(Input.GetMouseButton(0))
+        {
             rotHorizontal = Input.GetAxis("Mouse X") * velRotMouseOrb * Time.deltaTime;
             rotVertical = Input.GetAxis("Mouse Y") * velRotMouseOrb * Time.deltaTime;
         }

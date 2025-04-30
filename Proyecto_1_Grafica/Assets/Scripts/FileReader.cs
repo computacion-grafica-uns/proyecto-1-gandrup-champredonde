@@ -21,26 +21,26 @@ public class FileReader
 
     private void ReadObj(string fileName)
     {
-           string path = "Assets/Modelos3d/"+ fileName + ".obj";
+        string path = "Assets/Modelos3d/"+ fileName + ".obj";
 
-           StreamReader reader = new StreamReader(path);
-           string fileData = (reader.ReadToEnd());
+        StreamReader reader = new StreamReader(path);
+        string fileData = (reader.ReadToEnd());
     
-           reader.Close();
+        reader.Close();
 
-           ReadEachLine(fileData);
-           CentrarObjeto();
+        ReadEachLine(fileData);
+        CentrarObjeto();
 
-           obj = new GameObject();
+        obj = new GameObject();
 
-           obj.AddComponent<MeshFilter>();
+        obj.AddComponent<MeshFilter>();
 
-           obj.GetComponent<MeshFilter>().mesh = new Mesh();
+        obj.GetComponent<MeshFilter>().mesh = new Mesh();
 
-           obj.AddComponent<MeshRenderer>();
+        obj.AddComponent<MeshRenderer>();
 
-           UpdateMesh();
-           CreateMaterial();
+        UpdateMesh();
+        CreateMaterial();
     }
 
     private void ReadEachLine(string fileData)

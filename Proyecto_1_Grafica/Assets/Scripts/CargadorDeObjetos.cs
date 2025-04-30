@@ -11,7 +11,7 @@ public class CargadorDeObjetos
     private GameObject Paredes, Techo;
 
     private GameObject ruedasPcChair, basePcChair, respaldoPcChair;
-    // Start is called before the first frame update
+    
     public CargadorDeObjetos(Matrix4x4 projMatrix)
     {
         this.projMatrix = projMatrix;
@@ -503,10 +503,10 @@ public class CargadorDeObjetos
         positionMatrix = positionMatrix.transpose;
 
         Matrix4x4 rotationMatrixX = new Matrix4x4(
-            new Vector4(1f, 0f, 0f, 0f), // Primera columna
+            new Vector4(1f, 0f, 0f, 0f),
             new Vector4(0f, Mathf.Cos(newRotation.x), -Mathf. Sin (newRotation.x), 0f), 
             new Vector4(0f, Mathf. Sin (newRotation.x), Mathf.Cos(newRotation.x), 0f), 
-            new Vector4(0f, 0f, 0f, 1f) // Cuarta columna
+            new Vector4(0f, 0f, 0f, 1f)
         );
 
         Matrix4x4 rotationMatrixY= new Matrix4x4(
@@ -519,8 +519,8 @@ public class CargadorDeObjetos
         Matrix4x4 rotationMatrixZ = new Matrix4x4(
             new Vector4(Mathf.Cos(newRotation.z), -Mathf.Sin (newRotation.z), 0f, 0f),
             new Vector4(Mathf.Sin (newRotation.z), Mathf.Cos(newRotation.z), 0f, 0f), 
-            new Vector4(0f, 0f, 1f, 0f), // Tercera columna
-            new Vector4(0f, 0f, 0f, 1f) // Cuarta columna
+            new Vector4(0f, 0f, 1f, 0f), 
+            new Vector4(0f, 0f, 0f, 1f) 
         );
     
         Matrix4x4 rotationMatrix = rotationMatrixZ * rotationMatrixY * rotationMatrixX;
@@ -530,7 +530,7 @@ public class CargadorDeObjetos
             new Vector4(newScale.x, 0f, 0f, 0f),
             new Vector4(0f, newScale.y, 0f, 0f), 
             new Vector4(0f, 0f, newScale.z, 0f),
-            new Vector4(0f, 0f, 0f, 1f) // Cuarta columna
+            new Vector4(0f, 0f, 0f, 1f)
         );
         scaleMatrix = scaleMatrix.transpose;
     
